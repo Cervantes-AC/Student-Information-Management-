@@ -3,7 +3,7 @@
 **Development Plan & Progress Tracker**
 *Last updated: 2026-09-23*
 
-This document defines what will be built (based on `Backend/Laboratory 2.md` and `Frontend/Laboratory 3.md`) and tracks progress. Checkboxes are ticked as work is completed and verified.
+This document defines what will be built (based on `Backend.md` and `Frontend.md` at the project root) and tracks progress. Checkboxes are ticked as work is completed and verified.
 
 ---
 
@@ -16,7 +16,7 @@ This document defines what will be built (based on `Backend/Laboratory 2.md` and
 | Auth | Laravel **Sanctum** (token-based) | Simple, framework-native secure tokens; frontend sends `Authorization: Bearer` |
 | Frontend | **React + TypeScript** (Vite) | Student-selected framework; typed API models per assignment |
 | Frontend HTTP | Axios + React Router + AuthContext | Centralized API client, protected/role-aware routes |
-| Project layout | `Backend/` and `Frontend/` subfolders | Mirrors existing folder structure (`Laboratory 2.md`, `Laboratory 3.md` live alongside) |
+| Project layout | `Backend/` and `Frontend/` subfolders | Laravel app in `Backend/`, React app in `Frontend/`; lab docs (`Backend.md`, `Frontend.md`) at repo root |
 
 **API contract shared between both apps:** `{ "success": bool, "message": string, "data": ..., "meta": ... }`,
 base URL `http://localhost:8000/api/v1`, JSON errors with field-mapped `errors` on 422.
