@@ -46,7 +46,7 @@ class EnrollmentController extends Controller
 
         $enrollment = Enrollment::create($request->validated());
 
-        return ApiResponse::success(Presenters::enrollment($enrollment), 'Enrollment created successfully.', [], 201);
+        return ApiResponse::success(Presenters::enrollment($enrollment->refresh()), 'Enrollment created successfully.', [], 201);
     }
 
     public function update(UpdateEnrollmentRequest $request, Enrollment $enrollment)

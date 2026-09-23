@@ -42,7 +42,7 @@ class StudentController extends Controller
     {
         $student = Student::create($request->validated());
 
-        return ApiResponse::success(Presenters::student($student), 'Student created successfully.', [], 201);
+        return ApiResponse::success(Presenters::student($student->refresh()), 'Student created successfully.', [], 201);
     }
 
     public function update(UpdateStudentRequest $request, Student $student)

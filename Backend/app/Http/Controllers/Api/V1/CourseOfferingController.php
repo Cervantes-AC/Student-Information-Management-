@@ -48,7 +48,7 @@ class CourseOfferingController extends Controller
     {
         $offering = CourseOffering::create($request->validated());
 
-        return ApiResponse::success(Presenters::offering($offering), 'Course offering created successfully.', [], 201);
+        return ApiResponse::success(Presenters::offering($offering->refresh()), 'Course offering created successfully.', [], 201);
     }
 
     public function update(UpdateCourseOfferingRequest $request, CourseOffering $courseOffering)

@@ -35,7 +35,7 @@ class Presenters
                 ? ['id' => $student->program->id, 'code' => $student->program->code, 'name' => $student->program->name]
                 : null,
             'year_level' => $student->year_level,
-            'status' => $student->status->value,
+            'status' => $student->status?->value,
             'created_at' => $student->created_at?->toISOString(),
             'updated_at' => $student->updated_at?->toISOString(),
         ];
@@ -51,7 +51,7 @@ class Presenters
             'schedule' => $offering->schedule,
             'room' => $offering->room,
             'capacity' => $offering->capacity,
-            'status' => $offering->status->value,
+            'status' => $offering->status?->value,
             'course' => $offering->course
                 ? [
                     'id' => $offering->course->id,
@@ -79,7 +79,7 @@ class Presenters
             'display_name' => $term->displayName(),
             'start_date' => $term->start_date?->toDateString(),
             'end_date' => $term->end_date?->toDateString(),
-            'status' => $term->status->value,
+            'status' => $term->status?->value,
         ];
     }
 
@@ -111,7 +111,7 @@ class Presenters
         return [
             'id' => $enrollment->id,
             'enrollment_date' => $enrollment->enrollment_date?->toDateString(),
-            'status' => $enrollment->status->value,
+            'status' => $enrollment->status?->value,
             'student' => $enrollment->student ? self::student($enrollment->student) : null,
             'course_offering' => $offerings ? self::offering($offerings) : null,
             'grade' => $enrollment->grade ? self::grade($enrollment->grade) : null,

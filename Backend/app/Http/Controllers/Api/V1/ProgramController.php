@@ -33,7 +33,7 @@ class ProgramController extends Controller
     {
         $program = Program::create($request->validated());
 
-        return ApiResponse::success($program, 'Program created successfully.', [], 201);
+        return ApiResponse::success($program->refresh(), 'Program created successfully.', [], 201);
     }
 
     public function update(UpdateProgramRequest $request, Program $program)

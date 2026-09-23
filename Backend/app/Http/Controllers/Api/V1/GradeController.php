@@ -49,7 +49,7 @@ class GradeController extends Controller
 
         $grade = Grade::create($request->validated());
 
-        return ApiResponse::success(Presenters::grade($grade), 'Grade recorded successfully.', [], 201);
+        return ApiResponse::success(Presenters::grade($grade->refresh()), 'Grade recorded successfully.', [], 201);
     }
 
     public function update(UpdateGradeRequest $request, Grade $grade)

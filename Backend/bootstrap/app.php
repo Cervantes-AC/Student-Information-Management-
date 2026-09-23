@@ -23,6 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureRole::class,
         ]);
+
+        // API-only app: never redirect guests to a web login page. This makes
+        // unauthenticated requests throw AuthenticationException, which the
+        // exception handler below turns into a 401 JSON envelope.
+        $middleware->redirectGuestsTo(fn () => null);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // API requests always receive JSON error envelopes.
@@ -55,6 +60,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ModelNotFoundException $e, Request $request) {
             if ($request->is('api/*')) {
                 return ApiResponse::error('Resource not found.', [], 404);
+            }
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error('The requested route does not exist.', [], 404);
             }
         });
 

@@ -38,7 +38,7 @@ class AcademicTermController extends Controller
     {
         $term = AcademicTerm::create($request->validated());
 
-        return ApiResponse::success(Presenters::term($term), 'Academic term created successfully.', [], 201);
+        return ApiResponse::success(Presenters::term($term->refresh()), 'Academic term created successfully.', [], 201);
     }
 
     public function update(UpdateAcademicTermRequest $request, AcademicTerm $academicTerm)

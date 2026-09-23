@@ -34,8 +34,11 @@ Route::prefix('v1')->group(function () {
         });
 
         // ── Course offerings (staff manage; instructor views own) ──────
-        Route::get('course-offerings', [CourseOfferingController::class, 'index']);
-        Route::get('course-offerings/{course_offering}', [CourseOfferingController::class, 'show']);
+        Route::middleware('role:administrator,registrar,instructor')->group(function () {
+            Route::get('course-offerings', [CourseOfferingController::class, 'index']);
+            Route::get('course-offerings/{course_offering}', [CourseOfferingController::class, 'show']);
+            Route::get('course-offerings/{course_offering}/students', [OfferingStudentController::class, 'index']);
+        });
         Route::middleware('role:administrator,registrar')->group(function () {
             Route::post('course-offerings', [CourseOfferingController::class, 'store']);
             Route::match(['put', 'patch'], 'course-offerings/{course_offering}', [CourseOfferingController::class, 'update']);
@@ -56,17 +59,20 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('enrollments', EnrollmentController::class)->except(['create', 'edit']);
         });
 
-        // ── Grades (staff; instructors for their own offerings) ────────
+        // ── Grades (staff + instructors; instructors only for their own offerings) ──
         Route::get('grades', [GradeController::class, 'index'])->middleware('role:administrator,registrar');
         Route::get('grades/{grade}', [GradeController::class, 'show'])->middleware('role:administrator,registrar');
-        Route::post('grades', [GradeController::class, 'store']);
-        Route::match(['put', 'patch'], 'grades/{grade}', [GradeController::class, 'update']);
+        Route::middleware('role:administrator,registrar,instructor')->group(function () {
+            Route::post('grades', [GradeController::class, 'store']);
+            Route::match(['put', 'patch'], 'grades/{grade}', [GradeController::class, 'update']);
+        });
 
-        // ── Nested collection endpoints ────────────────────────────────
-        Route::get('students/{student}/enrollments', [StudentEnrollmentController::class, 'index']);
-        Route::get('students/{student}/grades', [StudentGradeController::class, 'index']);
-        Route::get('students/{student}/academic-record', [AcademicRecordController::class, 'index']);
-        Route::get('course-offerings/{course_offering}/students', [OfferingStudentController::class, 'index']);
+        // ── Nested collection endpoints (staff, or the student themselves) ──
+        Route::middleware('role:administrator,registrar,student')->group(function () {
+            Route::get('students/{student}/enrollments', [StudentEnrollmentController::class, 'index']);
+            Route::get('students/{student}/grades', [StudentGradeController::class, 'index']);
+            Route::get('students/{student}/academic-record', [AcademicRecordController::class, 'index']);
+        });
 
         // ── Student self-service ───────────────────────────────────────
         Route::middleware('role:student')->group(function () {

@@ -33,7 +33,7 @@ class CourseController extends Controller
     {
         $course = Course::create($request->validated());
 
-        return ApiResponse::success($course, 'Course created successfully.', [], 201);
+        return ApiResponse::success($course->refresh(), 'Course created successfully.', [], 201);
     }
 
     public function update(UpdateCourseRequest $request, Course $course)
