@@ -70,6 +70,14 @@
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": "{{baseUrl}}/dashboard/stats"
           }
+        },
+        {
+          "name": "Instructors (picker)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/instructors"
+          }
         }
       ]
     },

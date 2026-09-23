@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\AcademicTerm;
 use App\Models\Course;
 use App\Models\Program;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\InteractsAsApi;
 use Tests\TestCase;
@@ -139,5 +140,29 @@ class ReferenceDataTest extends TestCase
             'course_code' => 'X1',
             'course_title' => 'Should Fail',
         ])->assertStatus(403);
+    }
+
+    public function test_staff_can_list_active_instructors(): void
+    {
+        $this->apiAs('administrator');
+        User::factory()->role('instructor')->create([
+            'name' => 'Prof. Ada Lovelace',
+            'email' => 'ada@sims.test',
+        ]);
+        // Non-instructor accounts must never appear in the picker.
+        User::factory()->role('student')->create();
+
+        $this->getJson('/api/v1/instructors')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Prof. Ada Lovelace')
+            ->assertJsonStructure(['data' => [['id', 'name', 'email']]]);
+    }
+
+    public function test_students_cannot_list_instructors(): void
+    {
+        $this->apiAs('student');
+
+        $this->getJson('/api/v1/instructors')->assertStatus(403);
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\CourseOfferingController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EnrollmentController;
 use App\Http\Controllers\Api\V1\GradeController;
+use App\Http\Controllers\Api\V1\InstructorController;
 use App\Http\Controllers\Api\V1\MyDataController;
 use App\Http\Controllers\Api\V1\OfferingStudentController;
 use App\Http\Controllers\Api\V1\ProgramController;
@@ -25,6 +26,10 @@ Route::prefix('v1')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
 
         Route::get('dashboard/stats', [DashboardController::class, 'stats']);
+
+        // ── Reference lists for frontend forms (staff only) ─────────────
+        Route::get('instructors', [InstructorController::class, 'index'])
+            ->middleware('role:administrator,registrar');
 
         // ── Reference data (administrator + registrar only) ────────────
         Route::middleware('role:administrator,registrar')->group(function () {

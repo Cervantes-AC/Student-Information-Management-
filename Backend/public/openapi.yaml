@@ -122,6 +122,30 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  /instructors:
+    get:
+      tags: [Dashboard]
+      summary: List active instructor accounts (read-only picker for assignment forms)
+      description: >
+        Returns active accounts with the `instructor` role. Available to
+        administrators and registrars only. Used by the frontend to populate
+        the instructor selector when creating course offerings.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Instructor list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/InstructorRef' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
   /programs:
     get:
       tags: [Programs]
@@ -1417,6 +1441,13 @@ components:
         assigned_offerings: { type: integer }
         enrolled_students: { type: integer }
         grades_encoded: { type: integer }
+    InstructorRef:
+      type: object
+      description: Compact instructor account reference used by assignment forms.
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
     StudentStats:
       type: object
       properties:
