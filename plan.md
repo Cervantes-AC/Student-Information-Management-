@@ -33,17 +33,19 @@ base URL `http://localhost:8000/api/v1`, JSON errors with field-mapped `errors` 
 | Backend — core CRUD modules | ✅ Done |
 | Backend — academic transactions (offerings, enrollments, grades, record) | ✅ Done |
 | Backend — search/filter/sort/pagination | ✅ Done |
-| Backend — tests | ✅ Done (47 tests / 145 assertions) |
+| Backend — tests | ✅ Done (49 tests / 154 assertions) |
 | Backend — API docs + Postman collection | ✅ Done (`/api/docs`, `postman/`) |
 | Backend — README + demo smoke test | ✅ Done |
-| **Backend complete** | ✅ (45 API routes, smoke-tested over HTTP) |
-| Frontend — scaffold Vite React TS | ⬜ Pending |
-| Frontend — API client + auth | ⬜ Pending |
-| Frontend — core module screens | ⬜ Pending |
-| Frontend — academic transaction screens | ⬜ Pending |
-| Frontend — UX hardening + tests | ⬜ Pending |
-| Frontend — README + evidence | ⬜ Pending |
-| **Frontend complete** | ⬜ |
+| Backend — instructors picker endpoint | ✅ Done (`GET /instructors`, commit `feb3195`) |
+| **Backend complete** | ✅ (46 API routes, smoke-tested over HTTP) |
+| Frontend — scaffold Vite React TS | ✅ Done |
+| Frontend — API client + auth | ✅ Done |
+| Frontend — core module screens | ✅ Done |
+| Frontend — academic transaction screens | ✅ Done |
+| Frontend — role-aware UX for all 4 roles | ✅ Done |
+| Frontend — UX hardening + tests | ✅ Done (14 Vitest + MSW tests) |
+| Frontend — README + evidence + docs | ✅ Done |
+| **Frontend complete** | ✅ (build green, tests green, live API verified) |
 
 ---
 
@@ -76,6 +78,7 @@ students        programs        courses         academic-terms        course-off
 enrollments + students/{id}/enrollments + course-offerings/{id}/students
 grades + students/{id}/grades
 students/{id}/academic-record
+instructors (read-only picker, staff only)
 ```
 
 ### 3.4 Build steps (progress)
@@ -92,7 +95,7 @@ students/{id}/academic-record
 - [x] Search/filter/sort/pagination on Students (and where sensible elsewhere) via `App\Support\CollectionQuery`
 - [x] Academic Record aggregation (grouped by term, per-term + overall averages)
 - [x] Seeders (5 users · 3 programs · 100 students · 20 courses · 2 terms · 20 offerings · 200 enrollments · 100 grades)
-- [x] Feature tests (auth, students, authorization/object-level, enrollments, grades, collections) — **47 tests / 145 assertions**
+- [x] Feature tests (auth, students, authorization/object-level, enrollments, grades, collections, instructors) — **49 tests / 154 assertions**
 - [x] OpenAPI/Swagger docs at `/api/docs` (spec at `/openapi.yaml`) + Postman collection in `postman/`
 - [x] README.md (setup, env, migrations, seeding, run, auth, test accounts, tests)
 - [x] Smoke test: boot server, login, list/search/filter/paginate students, verify 401/403/404/409/422, role guards, DELETE→204, logout→token revoked
@@ -126,41 +129,44 @@ Frontend/
 ```
 
 ### 4.2 Build steps (progress)
-- [ ] Scaffold Vite + React + TS in `Frontend/`
-- [ ] Axios API client: base URL env, Bearer token, 401/403/404/409/422/500 normalization
-- [ ] AuthContext + protected/role-aware routes (React Router)
-- [ ] Layout shell + responsive navigation per role
-- [ ] Login page (invalid-credential feedback), logout, `GET /auth/me`
-- [ ] Programs, Courses, Academic Terms screens (list + CRUD)
-- [ ] Students screen (list, search, filters, pagination, create/edit/delete w/ confirmation)
-- [ ] Course Offerings screen
-- [ ] Enrollments screen (enroll, list per offering/student, duplicates via 409)
-- [ ] Grades screen (authorized entry/update)
-- [ ] Academic Record screen (aggregate endpoint, grouped by term)
-- [ ] Profile screen (me + role)
-- [ ] States: loading, empty, success, 401, 403 (forbidden), 404, 409, 422 field errors, network-down
-- [ ] UX: confirmation dialogs, toasts, skeletons, responsive, accessible labels
-- [ ] Tests: auth flow, students list/search, form validation/error, protected route
-- [ ] README + API integration map + AI development log + screenshots
+- [x] Scaffold Vite + React + TS in `Frontend/`
+- [x] Axios API client: base URL env, Bearer token, 401/403/404/409/422/500 normalization
+- [x] AuthContext + protected/role-aware routes (React Router)
+- [x] Layout shell + responsive navigation per role
+- [x] Login page (invalid-credential feedback), logout, `GET /auth/me`
+- [x] Programs, Courses, Academic Terms screens (list + CRUD)
+- [x] Students screen (list, search, filters, pagination, create/edit/delete w/ confirmation) + detail (enrollments/grades/record tabs)
+- [x] Course Offerings screen (+ class roster, instructor picker)
+- [x] Enrollments screen (enroll, list per offering/student, duplicates via 409)
+- [x] Grades screen (staff list + instructor roster encoding)
+- [x] Academic Record screen (aggregate endpoint, grouped by term)
+- [x] Profile screen (me + role)
+- [x] States: loading, empty, success, 401, 403 (forbidden), 404, 409, 422 field errors, network-down
+- [x] UX: confirmation dialogs, toasts, skeletons, responsive, accessible labels
+- [x] Tests: auth flow, students list/search, form validation/error, protected route — **14 Vitest + MSW tests green**
+- [x] README + API integration map + AI development log + test evidence
 
 ### 4.3 Frontend demo checks (from Laboratory 3 §24)
 invalid login → login → protected route → students from API → search → filter+paginate →
 create student → backend validation error → edit → delete w/ confirmation → manage programs/courses →
 academic term + offering → enroll → grade → academic record → 403 restricted role →
 backend stopped → network-error state → responsive widths.
+✅ Covered by automated tests (login, invalid login, protected redirect, expired session, search, role guard,
+422 mapping) and live curl evidence (search/filter, per-role academic record, 401/403/422). Browser demo
+steps remain to be walked live in the presentation.
 
 ---
 
 ## 5. Documentation / Evidence checklist (final deliverables)
 
 - [x] Backend README (install, env, migrate, seed, run, auth, tests, demo accounts)
-- [ ] Frontend README (setup, env config, run/build/test, API connection)
-- [ ] API Integration Map (frontend page → endpoint → method → role)
-- [ ] AI Development Log (tasks, tools, prompts, results, human review, evidence)
+- [x] Frontend README (setup, env config, run/build/test, API connection)
+- [x] API Integration Map (frontend page → endpoint → method → role)
+- [x] AI Development Log (tasks, tools, prompts, results, human review, evidence)
 - [x] OpenAPI/Swagger docs (`/api/docs`, spec at `public/openapi.yaml`)
-- [x] Postman collection (`postman/SIMS.postman_collection.json` — 45 requests)
-- [x] Test evidence (47 PHPUnit feature tests passing)
-- [ ] Screenshots of major screens + error states
+- [x] Postman collection (`postman/SIMS.postman_collection.json`)
+- [x] Test evidence (49 PHPUnit feature tests passing; 14 frontend Vitest + MSW tests passing)
+- [ ] Screenshots of major screens + error states (browser demo, to capture during presentation)
 - [x] Git repository with meaningful history
 
 ---
