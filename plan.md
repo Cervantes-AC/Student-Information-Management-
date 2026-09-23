@@ -27,16 +27,16 @@ base URL `http://localhost:8000/api/v1`, JSON errors with field-mapped `errors` 
 
 | Phase | Status |
 |---|---|
-| Backend — scaffold Laravel 12 | 🔄 In progress (composer install) |
-| Backend — database schema + seed data | ⬜ Pending |
-| Backend — auth (Sanctum) + roles | ⬜ Pending |
-| Backend — core CRUD modules | ⬜ Pending |
-| Backend — academic transactions (offerings, enrollments, grades, record) | ⬜ Pending |
-| Backend — search/filter/sort/pagination | ⬜ Pending |
-| Backend — tests | ⬜ Pending |
-| Backend — API docs + Postman collection | ⬜ Pending |
-| Backend — README + demo smoke test | ⬜ Pending |
-| **Backend complete** | ⬜ |
+| Backend — scaffold Laravel 12 | ✅ Done |
+| Backend — database schema + seed data | ✅ Done |
+| Backend — auth (Sanctum) + roles | ✅ Done |
+| Backend — core CRUD modules | ✅ Done |
+| Backend — academic transactions (offerings, enrollments, grades, record) | ✅ Done |
+| Backend — search/filter/sort/pagination | ✅ Done |
+| Backend — tests | ✅ Done (47 tests / 145 assertions) |
+| Backend — API docs + Postman collection | ✅ Done (`/api/docs`, `postman/`) |
+| Backend — README + demo smoke test | ✅ Done |
+| **Backend complete** | ✅ (45 API routes, smoke-tested over HTTP) |
 | Frontend — scaffold Vite React TS | ⬜ Pending |
 | Frontend — API client + auth | ⬜ Pending |
 | Frontend — core module screens | ⬜ Pending |
@@ -80,22 +80,22 @@ students/{id}/academic-record
 
 ### 3.4 Build steps (progress)
 
-- [ ] Scaffold Laravel 12 into `Backend/` (composer create-project)
-- [ ] Configure `.env` (SQLite, app name), CORS, `database/database.sqlite`
-- [ ] Install Sanctum + Scribe (with static OpenAPI fallback if Scribe fails on this setup)
-- [ ] Migrations for all 8 tables + constraints + indexes
-- [ ] Models, relationships, casts, PHP enums (Role, statuses)
-- [ ] AuthController (login/logout/me) + token revocation
-- [ ] Role middleware + object-level authorization checks
-- [ ] Controllers + Form Requests (validation → 422 with field errors)
-- [ ] Response envelope helper `{success, message, data, meta}`
-- [ ] Search/filter/sort/pagination on Students (and where sensible elsewhere)
-- [ ] Academic Record aggregation (grouped by term)
-- [ ] Seeders (5 users · 3 programs · 100 students · 20 courses · 2 terms · 20 offerings · 200 enrollments · 100 grades)
-- [ ] Feature tests (auth, students, authorization/object-level, enrollments, grades, collections)
-- [ ] OpenAPI/Swagger docs at `/api/docs` + Postman collection
-- [ ] README.md (setup, env, migrations, seeding, run, auth, test accounts, tests)
-- [ ] Smoke test: boot server, login, list/search/filter/paginate students, verify 401/403/422
+- [x] Scaffold Laravel 12 into `Backend/` (composer create-project)
+- [x] Configure `.env` (SQLite, app name), CORS, `database/database.sqlite`
+- [x] Install Sanctum (`install:api`); static OpenAPI fallback chosen (no Scribe)
+- [x] Migrations for all 8 tables + constraints + indexes
+- [x] Models, relationships, casts, PHP enums (Role, RecordStatus, EnrollmentStatus)
+- [x] AuthController (login/logout/me) + token revocation
+- [x] Role middleware + object-level authorization checks
+- [x] Controllers + Form Requests (validation → 422 with field errors)
+- [x] Response envelope helper `{success, message, data, meta}`
+- [x] Search/filter/sort/pagination on Students (and where sensible elsewhere) via `App\Support\CollectionQuery`
+- [x] Academic Record aggregation (grouped by term, per-term + overall averages)
+- [x] Seeders (5 users · 3 programs · 100 students · 20 courses · 2 terms · 20 offerings · 200 enrollments · 100 grades)
+- [x] Feature tests (auth, students, authorization/object-level, enrollments, grades, collections) — **47 tests / 145 assertions**
+- [x] OpenAPI/Swagger docs at `/api/docs` (spec at `/openapi.yaml`) + Postman collection in `postman/`
+- [x] README.md (setup, env, migrations, seeding, run, auth, test accounts, tests)
+- [x] Smoke test: boot server, login, list/search/filter/paginate students, verify 401/403/404/409/422, role guards, DELETE→204, logout→token revoked
 
 ### 3.5 Backend demo test accounts (seeded)
 | Role | Email | Password |
@@ -153,15 +153,15 @@ backend stopped → network-error state → responsive widths.
 
 ## 5. Documentation / Evidence checklist (final deliverables)
 
-- [ ] Backend README (install, env, migrate, seed, run, auth, tests, demo accounts)
+- [x] Backend README (install, env, migrate, seed, run, auth, tests, demo accounts)
 - [ ] Frontend README (setup, env config, run/build/test, API connection)
 - [ ] API Integration Map (frontend page → endpoint → method → role)
 - [ ] AI Development Log (tasks, tools, prompts, results, human review, evidence)
-- [ ] OpenAPI/Swagger docs
-- [ ] Postman/Bruno collection
-- [ ] Test evidence (automated output)
+- [x] OpenAPI/Swagger docs (`/api/docs`, spec at `public/openapi.yaml`)
+- [x] Postman collection (`postman/SIMS.postman_collection.json` — 45 requests)
+- [x] Test evidence (47 PHPUnit feature tests passing)
 - [ ] Screenshots of major screens + error states
-- [ ] Git repository with meaningful history
+- [x] Git repository with meaningful history
 
 ---
 

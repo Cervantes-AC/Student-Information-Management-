@@ -1,0 +1,158 @@
+{
+  "info": {
+    "name": "SIMS API — Student Information Management System",
+    "description": "REST API collection for the SIMS backend (Laravel 12 + Sanctum, /api/v1).\n\n**Setup:**\n1. Import this collection.\n2. Edit the `baseUrl` variable to point at your server (default http://127.0.0.1:8000/api/v1).\n3. Run **Authentication → Login** with any demo account below. The response test automatically stores the bearer token in the `token` collection variable, so every protected request is pre-authorized.\n\n**Demo accounts** (password: `password`):\n- admin@sims.test (Administrator)\n- registrar@sims.test (Registrar)\n- instructor@sims.test / instructor2@sims.test (Instructor)\n- student@sims.test (Student — linked to student number 2026-00001)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8000/api/v1" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@sims.test\",\n  \"password\": \"password\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.success && json.data && json.data.token) {",
+                  "  pm.collectionVariables.set('token', json.data.token);",
+                  "}",
+                  "pm.test('Login succeeds and stores token', () => {",
+                  "  pm.expect(json.success).to.eql(true);",
+                  "  pm.expect(pm.collectionVariables.get('token')).to.not.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/dashboard/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Programs",
+      "item": [
+        { "name": "List", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/programs?page=1&per_page=15" } },
+        { "name": "Create", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/programs", "body": { "mode": "raw", "raw": "{\n  \"code\": \"BSIT\",\n  \"name\": \"Bachelor of Science in Information Technology\",\n  \"description\": \"Study of computing systems.\"\n}" } } },
+        { "name": "Show", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/programs/1" } },
+        { "name": "Update", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/programs/1", "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description.\"\n}" } } },
+        { "name": "Deactivate", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/programs/1" } }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        { "name": "List", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/courses?search=programming" } },
+        { "name": "Create", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/courses", "body": { "mode": "raw", "raw": "{\n  \"course_code\": \"IT201\",\n  \"course_title\": \"Web Frameworks\",\n  \"units\": 3.0\n}" } } },
+        { "name": "Show", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/courses/1" } },
+        { "name": "Update", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/courses/1", "body": { "mode": "raw", "raw": "{\n  \"units\": 4.0\n}" } } },
+        { "name": "Deactivate", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/courses/1" } }
+      ]
+    },
+    {
+      "name": "Academic Terms",
+      "item": [
+        { "name": "List", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/academic-terms" } },
+        { "name": "Create", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/academic-terms", "body": { "mode": "raw", "raw": "{\n  \"academic_year\": \"2026-2027\",\n  \"semester\": \"1st\",\n  \"start_date\": \"2026-08-10\",\n  \"end_date\": \"2026-12-18\"\n}" } } },
+        { "name": "Show", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/academic-terms/1" } },
+        { "name": "Update", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/academic-terms/1", "body": { "mode": "raw", "raw": "{\n  \"semester\": \"2nd\"\n}" } } },
+        { "name": "Deactivate", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/academic-terms/1" } }
+      ]
+    },
+    {
+      "name": "Course Offerings",
+      "item": [
+        { "name": "List (instructor sees own)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/course-offerings?page=1&per_page=15" } },
+        { "name": "Create", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/course-offerings", "body": { "mode": "raw", "raw": "{\n  \"course_id\": 1,\n  \"academic_term_id\": 1,\n  \"instructor_id\": 3,\n  \"section\": \"A-1\",\n  \"schedule\": \"MWF 8:00-9:00\",\n  \"room\": \"B201\",\n  \"capacity\": 40\n}" } } },
+        { "name": "Show", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/course-offerings/1" } },
+        { "name": "Update", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/course-offerings/1", "body": { "mode": "raw", "raw": "{\n  \"capacity\": 45\n}" } } },
+        { "name": "Deactivate", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/course-offerings/1" } },
+        { "name": "Class roster (enrolled students)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/course-offerings/1/students" } }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        { "name": "List (search/filter/sort/paginate)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/students?search=dela&program_id=1&year_level=3&sort=last_name&order=asc&page=1&per_page=15" } },
+        { "name": "Create", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/students", "body": { "mode": "raw", "raw": "{\n  \"student_number\": \"2026-77777\",\n  \"first_name\": \"Ana\",\n  \"middle_name\": \"S\",\n  \"last_name\": \"Reyes\",\n  \"birth_date\": \"2004-05-12\",\n  \"email\": \"ana.reyes@sims.test\",\n  \"program_id\": 1,\n  \"year_level\": 2\n}" } } },
+        { "name": "Show", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/students/1" } },
+        { "name": "Update", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/students/1", "body": { "mode": "raw", "raw": "{\n  \"year_level\": 4\n}" } } },
+        { "name": "Deactivate", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/students/1" } },
+        { "name": "Enrollments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/students/1/enrollments" } },
+        { "name": "Grades", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/students/1/grades" } },
+        { "name": "Academic record", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/students/1/academic-record" } }
+      ]
+    },
+    {
+      "name": "Enrollments",
+      "item": [
+        { "name": "List", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/enrollments?page=1&per_page=15" } },
+        { "name": "Create", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/enrollments", "body": { "mode": "raw", "raw": "{\n  \"student_id\": 1,\n  \"course_offering_id\": 1\n}" } } },
+        { "name": "Show", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/enrollments/1" } },
+        { "name": "Update status", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/enrollments/1", "body": { "mode": "raw", "raw": "{\n  \"status\": \"completed\"\n}" } } },
+        { "name": "Drop", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/enrollments/1" } }
+      ]
+    },
+    {
+      "name": "Grades",
+      "item": [
+        { "name": "List", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/grades?page=1&per_page=15" } },
+        { "name": "Encode", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/grades", "body": { "mode": "raw", "raw": "{\n  \"enrollment_id\": 1,\n  \"midterm_grade\": 2.0,\n  \"final_grade\": 1.75,\n  \"remarks\": \"PASSED\"\n}" } } },
+        { "name": "Show", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/grades/1" } },
+        { "name": "Update", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/grades/1", "body": { "mode": "raw", "raw": "{\n  \"final_grade\": 1.5\n}" } } }
+      ]
+    },
+    {
+      "name": "My (student self-service)",
+      "item": [
+        { "name": "My enrollments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/my/enrollments" } },
+        { "name": "My grades", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/my/grades" } },
+        { "name": "My academic record", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/my/academic-record" } }
+      ]
+    }
+  ]
+}

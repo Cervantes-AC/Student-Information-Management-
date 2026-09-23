@@ -1,66 +1,263 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIMS Backend — Laravel 12 REST API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+REST API for the **Student Information Management System** (Laboratory Activity — Lab 2).
+Serves `/api/v1` with Sanctum token auth, role-based access control, SQLite storage,
+validation, pagination/search/filter/sort, API documentation, a Postman collection and a PHPUnit test suite.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Concern | Choice |
+|---|---|
+| Framework | Laravel 12 (PHP 8.2+) |
+| Auth | Laravel Sanctum (bearer tokens) |
+| Database | SQLite (`database/database.sqlite`) |
+| Validation | Form Requests → `422` with field-mapped `errors` |
+| Docs | OpenAPI 3 spec (`/openapi.yaml`), Swagger UI at `/api/docs`, Postman collection |
+| Tests | PHPUnit feature tests (in-memory SQLite) |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP **8.2+** (extension `pdo_sqlite` enabled; `zip` needed for Composer)
+- Composer **2.x**
+- Laravel 12 CLI optional (`php artisan` works via `composer`)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+> Windows/XAMPP tip: enable `extension=zip` and `extension=pdo_sqlite` in `C:\xampp\php\php.ini`.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Setup
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+cd Backend
 
-### Premium Partners
+# 1. Install dependencies
+composer install
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# 2. Create the SQLite database file (config/.env already points to it)
+#    Windows: New-Item database\database.sqlite -ItemType File    (or touch on Unix)
+#    The repo ships an empty database.sqlite; skip if it exists.
 
-## Contributing
+# 3. Configure environment
+copy .env.example .env        # (already done in this repo — .env is gitignored)
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Edit `.env` as needed:
 
-## Code of Conduct
+```
+APP_NAME="Student Information Management API"
+APP_URL=http://localhost:8000
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+DB_CONNECTION=sqlite
+# DB_DATABASE defaults to database/database.sqlite when DB_CONNECTION=sqlite
+```
 
-## Security Vulnerabilities
+### CORS
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+`config/cors.php` deliberately allows the React/Vite dev origins
+(`http://localhost:5173`, `http://127.0.0.1:5173`) plus a pattern for any `localhost:<port>`.
+Add your own staging origin there if the frontend is served from elsewhere.
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Migrate & Seed
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+This produces **5 users · 3 programs · 100 students · 20 courses · 2 academic terms ·
+20 course offerings · 200 enrollments · 100 grades**, plus a student account linked to
+student number `2026-00001`.
+
+### Demo accounts (password: `password`)
+
+| Role | Email | Notes |
+|---|---|---|
+| Administrator | `admin@sims.test` | Full access |
+| Registrar | `registrar@sims.test` | Staff access |
+| Instructor | `instructor@sims.test` | Sees/edits own offerings & rosters |
+| Instructor | `instructor2@sims.test` | Second instructor (for cross-instructor 403 checks) |
+| Student | `student@sims.test` | Linked to student `2026-00001`; self-service only |
+
+---
+
+## Run the API
+
+```bash
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Base URL: `http://127.0.0.1:8000/api/v1`
+
+Quick login:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@sims.test","password":"password"}'
+```
+
+Use the returned `token` on every other request:
+
+```bash
+curl http://127.0.0.1:8000/api/v1/students?search=dela \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+## API conventions
+
+### Response envelope
+
+Every response uses `{ "success", "message", "data", "meta", "errors" }`:
+
+```jsonc
+// 200 list
+{ "success": true, "message": "Students retrieved successfully.",
+  "data": [ ... ], "meta": { "current_page": 1, "per_page": 15, "total": 100,
+  "last_page": 7, "from": 1, "to": 15 } }
+
+// 422 validation
+{ "success": false, "message": "Validation failed.",
+  "errors": { "student_number": ["The student number is already registered."] } }
+```
+
+### Error codes
+
+| Code | Meaning |
+|---|---|
+| `401` | Missing/invalid bearer token or bad credentials |
+| `403` | Authenticated, but role or record access not allowed |
+| `404` | Record or route not found |
+| `409` | Conflict (`duplicate enrollment`, `duplicate grade`) |
+| `422` | Validation failed (field-mapped `errors`) |
+| `500` | Server error (never leaks stack traces in JSON) |
+
+`DELETE` endpoints **deactivate** records (`status = inactive` / `dropped`) and return
+`204 No Content` — this preserves referential integrity with child records.
+
+### List endpoints: search / filter / sort / pagination
+
+| Query param | Purpose | Example |
+|---|---|---|
+| `search` | LIKE across a resource's searchable columns | `?search=dela` |
+| `<column>` | exact filter on filterable columns | `?program_id=1&year_level=3&status=active` |
+| `sort` + `order` | allowed sort columns, `asc`/`desc` | `?sort=last_name&order=asc` |
+| `page`, `per_page` | pagination (default 15, max 100) | `?page=2&per_page=25` |
+
+---
+
+## Endpoints overview
+
+Base path: `/api/v1`
+
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/auth/login` | public |
+| GET | `/auth/me` · POST `/auth/logout` | any authenticated |
+| GET | `/dashboard/stats` | any authenticated (role-shaped) |
+| GET/POST | `/programs`, `/programs/{id}` (GET/PUT/PATCH/DELETE) | admin, registrar |
+| GET/POST | `/courses`, `/courses/{id}` (GET/PUT/PATCH/DELETE) | admin, registrar |
+| GET/POST | `/academic-terms`, `/academic-terms/{id}` (GET/PUT/PATCH/DELETE) | admin, registrar |
+| GET | `/course-offerings` | staff (all), instructor (own) |
+| GET | `/course-offerings/{id}` | staff (any), instructor (own) |
+| POST/PUT/PATCH/DELETE | `/course-offerings[/{id}]` | admin, registrar |
+| GET | `/course-offerings/{id}/students` | staff, the offering's instructor |
+| GET/POST | `/students`, `/students/{id}` (GET/PUT/PATCH/DELETE) | list/create/update/delete: admin, registrar; show: staff or the student themselves |
+| GET | `/students/{id}/enrollments` · `/students/{id}/grades` · `/students/{id}/academic-record` | staff, or the student themselves |
+| GET/POST | `/enrollments`, `/enrollments/{id}` (GET/PUT/PATCH/DELETE) | admin, registrar |
+| GET | `/grades` · `/grades/{id}` | admin, registrar |
+| POST/PUT/PATCH | `/grades[/{id}]` | staff, or instructor for their own offering's students |
+| GET | `/my/enrollments` · `/my/grades` · `/my/academic-record` | student (own data only) |
+
+All endpoints are documented in the OpenAPI spec — see [API documentation](#api-documentation).
+
+---
+
+## API documentation
+
+- **OpenAPI 3 spec:** `GET /openapi.yaml` (also at `Backend/public/openapi.yaml`)
+- **Swagger UI (interactive):** `GET /api/docs` (browser; loads the spec from `/openapi.yaml`)
+- **Postman collection:** `postman/SIMS.postman_collection.json` (45 requests)
+
+Postman quick start:
+
+1. Import `postman/SIMS.postman_collection.json`.
+2. The collection variable `baseUrl` defaults to `http://127.0.0.1:8000/api/v1`.
+3. Run **Authentication → Login** — the test script stores the returned token in the
+   `token` collection variable, so all other requests are pre-authorized.
+
+---
+
+## Running the tests
+
+```bash
+cd Backend
+php artisan test
+```
+
+Runs the PHPUnit suite against **in-memory SQLite** (`phpunit.xml` sets
+`DB_CONNECTION=sqlite` + `DB_DATABASE=:memory:`). Current: **47 tests / 145 assertions**
+covering authentication, students (search/filter/sort/pagination), reference data CRUD,
+offerings, enrollments (409 duplicates), grades (instructor scope 403), class rosters,
+student-scoped endpoints, academic records and role-shaped dashboards.
+
+Run a single file:
+
+```bash
+php artisan test --filter=StudentManagementTest
+```
+
+---
+
+## Project structure
+
+```
+Backend/
+|-- app/
+|   |-- Enums/            Role, RecordStatus, EnrollmentStatus
+|   |-- Http/
+|   |   |-- Controllers/Api/V1/   Auth, Dashboard, Students, Programs, Courses,
+|   |   |                          AcademicTerms, CourseOfferings, Enrollments, Grades,
+|   |   |                          StudentEnrollment/Grade, OfferingStudent, AcademicRecord, MyData
+|   |   |-- Middleware/   EnsureRole (role:...) route middleware
+|   |   `-- Requests/     Form Requests (422 field validation)
+|   |-- Models/           User, Program, Student, Course, AcademicTerm,
+|   |                      CourseOffering, Enrollment, Grade
+|   `-- Support/          ApiResponse (envelope), CollectionQuery (search/filter/sort/page),
+|                          Presenters (stable JSON shapes)
+|-- bootstrap/app.php     Middleware alias + JSON exception mapping (401/403/404/409/422)
+|-- config/cors.php       Local dev origins
+|-- database/
+|   |-- factories/        Factories for all models
+|   |-- migrations/       8 table migrations + indexes/constraints
+|   `-- seeders/          Demo data (5 users, 100 students, 200 enrollments, ...)
+|-- postman/              SIMS.postman_collection.json
+|-- public/openapi.yaml   OpenAPI 3 specification
+|-- resources/views/swagger.blade.php   Swagger UI (served at /api/docs)
+|-- routes/api.php        All /api/v1 endpoints + role middleware
+|-- tests/Feature/        PHPUnit feature tests
+`-- scripts/              Small dev helpers (validate_yaml.php)
+```
+
+---
+
+## Notable design decisions
+
+- **Deactivation instead of hard deletes** — students/programs/courses/offerings/terms are
+  marked `inactive` and enrollments `dropped`, preserving referential integrity (DELETE → 204).
+- **Instructor scoping** — `/course-offerings` and grade management automatically limit
+  instructors to their own offerings; cross-instructor attempts return `403`.
+- **Student object-level checks** — a student token can only read their own linked
+  student record, enrollments, grades and academic record.
+- **409 conflicts** — duplicate `(student, offering)` enrollments and double-encoded grades
+  are rejected with a consistent conflict response (also enforced by DB unique indexes).
+- **One grade per enrollment** — `grades.enrollment_id` is unique.
+</content>
+</invoke>
